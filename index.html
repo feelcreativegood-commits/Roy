@@ -241,7 +241,7 @@ const STAR=[[2,0],[-2,0],[1,1],[1,-1],[-1,1],[-1,-1]],UP=[[0,-2],[-3,1],[3,1]],D
 const svg=document.getElementById('b'),ov=document.getElementById('ov'),tt=document.getElementById('toast');
 const key=(x,r)=>x+','+r,px=x=>x*W/2,py=r=>r*1.5*S;
 const cap=s=>s[0].toUpperCase()+s.slice(1);
-const VERSION='1.2.1',NP_LIMIT=40,SAVE_KEY='ulei-save';
+const VERSION='1.2.2',NP_LIMIT=40,SAVE_KEY='ulei-save';
 let tutStep=-1,statArm=false;
 let matchMode='classic',selMM='classic',splash=true,splashT=null,byeOn=false,lastPV=null,rzT=null;
 function phoneView(){return typeof innerWidth!='undefined'&&innerWidth<600&&innerHeight>innerWidth*1.1}
@@ -1906,7 +1906,7 @@ function render(){
   const me=document.getElementById('matchEnd');
   if(G.phase=='over'&&G.matchOver&&G.matchCard&&!G.winFlash&&!menu&&tutStep<0){me.innerHTML=matchEndHTML();me.hidden=false}else me.hidden=true;
   const tu=document.getElementById('tut');
-  if(tutStep>=0){tu.innerHTML=tutHTML();tu.hidden=false}else tu.hidden=true;
+  if(tutStep>=0){tu.innerHTML=tutHTML();tu.hidden=false}else if(!tu.hidden||tu.innerHTML){tu.hidden=true;tu.innerHTML=''}
   let c='';
   if(G.phase=='setup'){
     c+='<button class="go" onclick="ready()">'+(G.setupP==0&&!vsAI?'Готово, дальше — '+N[1]:'Готово, начать игру')+'</button>';

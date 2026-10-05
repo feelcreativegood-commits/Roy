@@ -3,6 +3,7 @@
   "short_name": "РОЙ",
   "description": "Настольная игра для двоих на шестиугольном поле.",
   "lang": "ru",
+  "id": "roy-game",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
