@@ -1,8 +1,8 @@
 // РОЙ — service worker: игра работает без сети и обновляется по кнопке.
 // При каждом выпуске поднимайте VERSION здесь и в index.html (одно и то же число).
-const VERSION='1.2';
+const VERSION='1.2.1';
 const CACHE='roy-'+VERSION;
-const FILES=['./','index.html','manifest.webmanifest','icons/icon-192.png','icons/icon-512.png','icons/icon-maskable-512.png','icons/apple-touch-icon.png'];
+const FILES=['./','index.html','manifest.webmanifest','icon-192.png','icon-512.png','icon-maskable-512.png','apple-touch-icon.png'];
 
 self.addEventListener('install',e=>{
   // Новая версия скачивается целиком, но включается только по кнопке «Обновить».
