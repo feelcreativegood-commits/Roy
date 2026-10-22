@@ -16,7 +16,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-html{scroll-padding-top:env(safe-area-inset-top,0px);background:#24160a}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:#24160a;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 *,*:before,*:after{box-sizing:inherit}
 [hidden]{display:none!important}
 body,body.t-wood{--bd:#3d2612;--pg:linear-gradient(rgba(18,9,2,.52),rgba(18,9,2,.52)),var(--wood) 0 0/1600px 1000px,linear-gradient(180deg,#33200f,#24160a);--fg:#f6e8cf;--mut:#cdb48c;--btn:#5b3a1e;--btn2:#74492a;--btnfg:#f8ecd6;--line:#2b170a;--acc:#e8c27c;--accfg:#2a1707;--go:#f2b843;--gofg:#2a1707;--cfg:#2a1707;--cmut:#5c3a18;--panel:rgba(30,17,7,.96);
@@ -54,8 +54,8 @@ button:disabled,button:disabled:hover{opacity:.45;cursor:default;background:var(
 .hint-mk{animation:hintPulse 1s ease-in-out infinite}
 .grp{color:var(--cmut);font-size:14px;margin-top:10px}
 .dsc{color:var(--cmut);font-size:14px;margin:4px 0 6px}
-.tabs{display:flex;gap:6px;margin:8px 0 4px;padding-bottom:8px;border-bottom:2px solid var(--line)}
-.tabs button{flex:1;padding:8px 6px}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 4px;padding-bottom:8px;border-bottom:2px solid var(--line)}
+.tabs button{flex:1 1 auto;min-width:0;padding:8px 6px}
 .foot{margin-top:14px;padding-top:12px;border-top:2px solid var(--line)}
 .seg{display:flex;gap:8px;justify-content:center;margin:6px 0 12px}
 .seg button{flex:1}
@@ -80,6 +80,9 @@ button.sec{width:100%;margin-top:10px}
 .sp-menu .sp-themes button.th-honey{background:radial-gradient(circle at 35% 30%,#ffe796,#f5b22b 55%,#c47a0c)}
 .sp-menu .sp-themes button.th-space{background:radial-gradient(circle at 35% 30%,#8b57dc,#25104f)}
 .sp-menu .sp-themes button.on{border-color:#ffe2a6;box-shadow:0 0 0 2px rgba(255,226,166,.9),0 0 0 4px rgba(0,0,0,.35)}
+.sp-menu .sp-lang{display:flex;gap:6px;justify-content:center;margin-top:2px}
+.sp-menu .sp-lang button{min-width:0;padding:4px 14px;font-size:13px;letter-spacing:.5px}
+.sp-menu .sp-lang button.on{background:linear-gradient(180deg,#ffe2a6,#e9b866);color:#4a2306}
 .sp-menu button:focus-visible{outline:2px solid #ffd27a;outline-offset:3px}
 #bye{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;background:var(--ovbg);padding:16px}
 #winFlash{position:fixed;inset:0;z-index:45;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);cursor:pointer;padding:24px;animation:wfIn .4s ease}
@@ -139,12 +142,15 @@ details li{margin:5px 0}
   .grp{margin-top:8px;font-size:13px}
   .seg{margin:5px 0 8px;gap:6px}
   .seg button{padding:8px 6px;font-size:14px}
-  .tabs button{padding:7px 4px}
+  .tabs button{padding:6px 8px;font-size:14px;line-height:1.2}
   .dsc{font-size:13px;margin:2px 0 4px}
   .opt{font-size:14px;margin:6px 0}
   .foot{margin-top:10px;padding-top:10px}
   button.big{padding:10px 14px;font-size:16px}
   button.sec{margin-top:8px}
+  .foot{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .foot button.big{grid-column:1/-1;margin:0}
+  .foot button.sec{margin:0;padding:8px 6px;font-size:14px;line-height:1.2}
   #splash{padding:10px;gap:12px}
 }
 @media (max-height:700px) and (orientation:portrait){
@@ -230,7 +236,8 @@ const S=30,W=Math.sqrt(3)*S;
 const COL=['#b36ad4','#ffa50a'],N=['фиолетовые','оранжевые'];
 const NAMES={space:['фиолетовые','оранжевые'],wood:['тёмные','светлые'],honey:['тёмные','светлые']};
 const CHIP={space:['#b36ad4','#ffa50a'],wood:['#5a3820','#e6c98f'],honey:['#8a3a0c','#f6c445']};
-function applyNames(){N[0]=NAMES[theme][0];N[1]=NAMES[theme][1]}
+const NAMES_EN={space:['Purple','Orange'],wood:['Dark','Light'],honey:['Dark','Light']};
+function applyNames(){const nn=lang=='en'?NAMES_EN:NAMES;N[0]=nn[theme][0];N[1]=nn[theme][1];TUT=lang=='en'?TUT_EN:TUT_RU}
 const T0=[[4,1],[6,1],[8,1],[5,2],[7,2],[6,3]];
 const TY_T=['s','t','t','s','s','t'],TY_B=['t','t','s','s','t','s'];
 const QT=[[5,1],[7,1],[4,2],[8,2],[5,3],[7,3],[6,2]],QTY_T=['s','t','t','s','s','t','q'];
@@ -241,7 +248,7 @@ const STAR=[[2,0],[-2,0],[1,1],[1,-1],[-1,1],[-1,-1]],UP=[[0,-2],[-3,1],[3,1]],D
 const svg=document.getElementById('b'),ov=document.getElementById('ov'),tt=document.getElementById('toast');
 const key=(x,r)=>x+','+r,px=x=>x*W/2,py=r=>r*1.5*S;
 const cap=s=>s[0].toUpperCase()+s.slice(1);
-const VERSION='1.2.2',NP_LIMIT=40,SAVE_KEY='ulei-save';
+const VERSION='1.3',NP_LIMIT=40,SAVE_KEY='ulei-save';
 let tutStep=-1,statArm=false;
 let matchMode='classic',selMM='classic',splash=true,splashT=null,byeOn=false,lastPV=null,rzT=null;
 function phoneView(){return typeof innerWidth!='undefined'&&innerWidth<600&&innerHeight>innerWidth*1.1}
@@ -249,11 +256,14 @@ let G,vsAI=true,aiTimer=null,menu=true,started=false,selOpp=true,figMode='queen'
 const pcPrev=new Map();
 let RULES={free:true,rep:false,turn:true,freeze:false},selFree=true,selRep=false,selTurn=true,selFreeze=false;
 let musicOn=true;
-let theme='wood',menuTab='game';
+let theme='wood',menuTab='game',lang='ru';
+try{if(localStorage.getItem('ulei-lang')==='en')lang='en'}catch(e){}
+const L=(ru,en)=>lang=='en'?en:ru;
+function setLang(l){lang=l=='en'?'en':'ru';try{localStorage.setItem('ulei-lang',lang)}catch(e){}render()}
 try{const th=localStorage.getItem('ulei-theme');if(th==='wood'||th==='honey'||th==='space')theme=th;else if(th==='classic')theme='space'}catch(e){}
 let sfxOn=true,sfxStyle='marimba';
 try{if(localStorage.getItem('ulei-music')==='0')musicOn=false;if(localStorage.getItem('ulei-sfx')==='0')sfxOn=false;const ss=localStorage.getItem('ulei-sfxstyle');if(ss==='wood'||ss==='marimba')sfxStyle=ss}catch(e){}
-const nm=p=>N[p]+(vsAI&&p==1?' (компьютер)':'');
+const nm=p=>N[p]+(vsAI&&p==1?L(' (компьютер)',' (computer)'):'');
 function toast(s){tt.textContent=s}
 function init(R,keep){
   const prev=G;
@@ -291,7 +301,7 @@ function feasible(p){
 }
 function ready(){
   if(!feasible(G.setupP)){
-    toast('Так трутни не смогут дойти до улья соперника: каждый трутень ходит только по своим клеткам. Поменяйте трутней и звёзды местами.');
+    toast(L('Так трутни не смогут дойти до улья соперника: каждый трутень ходит только по своим клеткам. Поменяйте трутней и звёзды местами.','With this setup some drones can’t reach the opponent’s hive: each drone only moves on its own class of cells. Swap some drones and bees.'));
     return;
   }
   G.sel=null;
@@ -468,7 +478,7 @@ function passTurn(q){
     if(!RULES.freeze){
       G.turn=q.p;
       if(!legal(q.p).length){G.winner=-1;G.phase='over';G.matchOver=G.mm=='classic'&&G.round>=3;toast('');return render()}
-      toast(cap(N[n])+' не могут ходить — '+N[q.p]+' ходят снова');
+      toast(L(cap(N[n])+' не могут ходить — '+N[q.p]+' ходят снова',N[n]+' cannot move — '+N[q.p]+' moves again'));
       checkRepeat();
       return render();
     }
@@ -514,7 +524,7 @@ function doTurn(q){
 }
 function turnSVG(q){
   const x=px(q.x)+21,y=py(q.r)-21;
-  return '<g data-turn="'+q.id+'" transform="translate('+x.toFixed(1)+','+y.toFixed(1)+')" style="cursor:pointer"><title>Развернуть трутня</title><circle r="11.5" fill="rgba(20,10,2,.88)" stroke="#f2d9a0" stroke-width="1.6"/>'
+  return '<g data-turn="'+q.id+'" transform="translate('+x.toFixed(1)+','+y.toFixed(1)+')" style="cursor:pointer"><title>'+L('Развернуть трутня','Turn the drone')+'</title><circle r="11.5" fill="rgba(20,10,2,.88)" stroke="#f2d9a0" stroke-width="1.6"/>'
     +'<path d="M4.6 -2.4A5.2 5.2 0 1 0 3.4 4" fill="none" stroke="#f2d9a0" stroke-width="1.8" stroke-linecap="round"/><path d="M8.3 -3.6L4.9 -0.2L2.3 -4.6Z" fill="#f2d9a0"/></g>';
 }
 function pushSVG(pd){
@@ -522,7 +532,7 @@ function pushSVG(pd){
   const ang=Math.atan2(dy*1.5*S,dx*W/2)*180/Math.PI;
   const ox=px(t.x)+Math.cos(ang*Math.PI/180)*25,oy=py(t.r)+Math.sin(ang*Math.PI/180)*25;
   const k=t.id+'_'+pd.fx+'_'+pd.fr;
-  return '<g data-push="'+k+'" transform="translate('+ox.toFixed(1)+','+oy.toFixed(1)+') rotate('+ang.toFixed(1)+')" style="cursor:pointer"><title>Толкнуть фигуру</title><circle r="11.5" fill="rgba(20,10,2,.88)" stroke="#f2d9a0" stroke-width="1.6"/>'
+  return '<g data-push="'+k+'" transform="translate('+ox.toFixed(1)+','+oy.toFixed(1)+') rotate('+ang.toFixed(1)+')" style="cursor:pointer"><title>'+L('Толкнуть фигуру','Push the piece')+'</title><circle r="11.5" fill="rgba(20,10,2,.88)" stroke="#f2d9a0" stroke-width="1.6"/>'
     +'<path d="M-6 0H5M5 0L0.6 -4.4M5 0L0.6 4.4" fill="none" stroke="#f2d9a0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></g>';
 }
 function freezeBadgeSVG(q){
@@ -545,7 +555,7 @@ function nextRound(){
   G.turn=L;G.last=[-1,-1];G.sel=null;G.phase='play';G.rep=new Map();G.lastMove=null;G.winFlash=false;G.winBy=null;G.hopelessOffer=null;pcPrev.clear();
   G.np=0;G.best=[delivered(0),delivered(1)];G.ended=false;G.undo=[];G.hint=null;
   const bad=[0,1].filter(p=>!feasible(p));
-  toast((out.length?'Фигуры, не успевшие войти в улей, расставлены на свободные места случайно. ':'')+(bad.length?'Внимание: '+bad.map(p=>N[p]).join(' и ')+' уже не смогут занять улей соперника, потому что не все их трутни дойдут до нужных клеток.':''));
+  toast((out.length?L('Фигуры, не успевшие войти в улей, расставлены на свободные места случайно. ','Pieces that had not entered the hive were placed on free cells at random. '):'')+(bad.length?L('Внимание: '+bad.map(p=>N[p]).join(' и ')+' уже не смогут занять улей соперника, потому что не все их трутни дойдут до нужных клеток.','Warning: '+bad.map(p=>N[p]).join(' and ')+' can no longer fill the opponent’s hive, because not all their drones can reach the right cells.'):''));
   render();
 }
 svg.addEventListener('click',e=>{
@@ -584,9 +594,9 @@ svg.addEventListener('click',e=>{
     const q=G.pcs[+pe.dataset.id];
     if(q.p==G.turn){
       if(legal(q.p).includes(q)){if(G.hint&&G.hint.id!=q.id)G.hint=null;G.sel=q.id;toast('');Music.select()}
-      else if(isFrozen(q))toast('Эта фигура застыла в улье соперника и до конца раунда не может ходить — сдвинуть её может только толчок королевы.');
-      else if(q.id==G.last[q.p]&&(moves(q).length||pushDests(q).length))toast('Этой фигурой уже ходили — выберите другую');
-      else toast(q.t=='t'&&RULES.turn?'Этой фигурой уже ходили — выберите другую':'Эта фигура сейчас не может ходить');
+      else if(isFrozen(q))toast(L('Эта фигура застыла в улье соперника и до конца раунда не может ходить — сдвинуть её может только толчок королевы.','This piece is frozen in the opponent’s hive until the end of the round — only a queen’s push can move it.'));
+      else if(q.id==G.last[q.p]&&(moves(q).length||pushDests(q).length))toast(L('Этой фигурой уже ходили — выберите другую','This piece just moved — choose another one'));
+      else toast(q.t=='t'&&RULES.turn?L('Этой фигурой уже ходили — выберите другую','This piece just moved — choose another one'):L('Эта фигура сейчас не может ходить','This piece cannot move now'));
     }
     return render();
   }
@@ -1010,41 +1020,62 @@ function overText(){
   const sc=scoreHTML();
   if(G.matchOver){
     const a=G.score[0],b=G.score[1];
-    if(a==b)return 'Матч окончен вничью, счёт '+sc+'.';
+    if(a==b)return L('Матч окончен вничью, счёт ','The match is a draw, score ')+sc+'.';
     const w=a>b?0:1;
-    return 'Матч окончен: победили '+nm(w)+' '+chipHTML(w)+', счёт '+sc+'.';
+    return L('Матч окончен: победили '+nm(w),'Match over: '+nm(w)+' wins')+' '+chipHTML(w)+L(', счёт ',', score ')+sc+'.';
   }
-  if(G.winner==-2)return 'Ничья в раунде: позиция повторилась трижды. Счёт '+sc+'. Что дальше?';
-  if(G.winner==-1)return 'Ничья в раунде: ни у кого нет ходов. Счёт '+sc+'. Что дальше?';
-  if(G.winner==-3)return 'Ничья в раунде: '+NP_LIMIT+' ходов подряд никто не завёл в улей соперника новую фигуру. Счёт '+sc+'. Что дальше?';
-  if(G.winBy=='stuck')return 'Раунд '+G.round+': у '+N[1-G.winner]+' не осталось ни одного хода — победили '+nm(G.winner)+' '+chipHTML(G.winner)+'. Счёт '+sc+'.'+(G.mm=='free'?' Что дальше?':'');
-  if(G.winBy=='hopeless')return 'Раунд '+G.round+': у '+N[1-G.winner]+' уже нет шансов догнать соперника — победили '+nm(G.winner)+' '+chipHTML(G.winner)+'. Счёт '+sc+'.'+(G.mm=='free'?' Что дальше?':'');
-  return 'Раунд '+G.round+': выиграли '+nm(G.winner)+' '+chipHTML(G.winner)+'. Счёт '+sc+'.'+(G.mm=='free'?' Что дальше?':'');
+  if(G.winner==-2)return L('Ничья в раунде: позиция повторилась трижды. Счёт ','Round drawn: the position repeated three times. Score ')+sc+L('. Что дальше?','. What next?');
+  if(G.winner==-1)return L('Ничья в раунде: ни у кого нет ходов. Счёт ','Round drawn: nobody can move. Score ')+sc+L('. Что дальше?','. What next?');
+  if(G.winner==-3)return L('Ничья в раунде: '+NP_LIMIT+' ходов подряд никто не завёл в улей соперника новую фигуру. Счёт ','Round drawn: for '+NP_LIMIT+' moves nobody brought a new piece into the opponent’s hive. Score ')+sc+L('. Что дальше?','. What next?');
+  if(G.winBy=='stuck')return L('Раунд '+G.round+': у '+N[1-G.winner]+' не осталось ни одного хода — победили '+nm(G.winner),'Round '+G.round+': '+N[1-G.winner]+' has no moves left — '+nm(G.winner)+' wins')+' '+chipHTML(G.winner)+L('. Счёт ','. Score ')+sc+'.'+(G.mm=='free'?L(' Что дальше?',' What next?'):'');
+  if(G.winBy=='hopeless')return L('Раунд '+G.round+': у '+N[1-G.winner]+' уже нет шансов догнать соперника — победили '+nm(G.winner),'Round '+G.round+': '+N[1-G.winner]+' can no longer catch up — '+nm(G.winner)+' wins')+' '+chipHTML(G.winner)+L('. Счёт ','. Score ')+sc+'.'+(G.mm=='free'?L(' Что дальше?',' What next?'):'');
+  return L('Раунд '+G.round+': выиграли '+nm(G.winner),'Round '+G.round+': '+nm(G.winner)+' wins')+' '+chipHTML(G.winner)+L('. Счёт ','. Score ')+sc+'.'+(G.mm=='free'?L(' Что дальше?',' What next?'):'');
 }
 function winFlashHTML(){
   const light=theme=='space'?'#e9dcff':theme=='honey'?'#ffdfa0':'#f1dbaa';
   const shade=theme=='space'?'rgba(12,2,40,.7)':theme=='honey'?'rgba(30,8,0,.65)':'rgba(0,0,0,.6)';
-  const msg=cap(N[G.winner])+' победили';
+  const msg=L(cap(N[G.winner])+' победили',N[G.winner]+' wins');
   return '<div class="wf-text" style="--wfl:'+light+';--wfs:'+shade+'"><span class="wf-shadow">'+msg+'</span><span class="wf-light">'+msg+'</span></div>';
 }
 function dismissWinFlash(){G.winFlash=false;render()}
 function overButtons(){
   const tally=G.score[0]+G.score[1]>0;
-  if(G.matchOver)return '<button class="go" onclick="init(G.R)">Играть заново</button>';
-  if(G.winner<0)return '<button class="go" onclick="init(G.R,true)">Переиграть раунд с расстановки</button>'
-    +'<button class="go" onclick="init(G.R)">Начать заново'+(tally?' (счёт обнулится)':'')+'</button>';
-  if(G.mm=='classic')return '<button class="go" onclick="nextRound()">Раунд '+(G.round+1)+': продолжить с этой расстановкой</button>';
-  return '<button class="go" onclick="nextRound()">Продолжить с этой расстановкой</button>'
-    +'<button class="go" onclick="init(G.R)">Начать заново с расстановки'+(tally?' (счёт обнулится)':'')+'</button>';
+  if(G.matchOver)return '<button class="go" onclick="init(G.R)">'+L('Играть заново','Play again')+'</button>';
+  if(G.winner<0)return '<button class="go" onclick="init(G.R,true)">'+L('Переиграть раунд с расстановки','Replay the round from setup')+'</button>'
+    +'<button class="go" onclick="init(G.R)">'+L('Начать заново','Start over')+(tally?L(' (счёт обнулится)',' (score resets)'):'')+'</button>';
+  if(G.mm=='classic')return '<button class="go" onclick="nextRound()">'+L('Раунд '+(G.round+1)+': продолжить с этой расстановкой','Round '+(G.round+1)+': continue from this position')+'</button>';
+  return '<button class="go" onclick="nextRound()">'+L('Продолжить с этой расстановкой','Continue from this position')+'</button>'
+    +'<button class="go" onclick="init(G.R)">'+L('Начать заново с расстановки','Start over from setup')+(tally?L(' (счёт обнулится)',' (score resets)'):'')+'</button>';
 }
 function matchRule(mm){
-  const cont=' Продолжение: ульи меняются местами, недошедшие фигуры проигравшего встают в нём случайно, первый ход — за проигравшим.';
+  const cont=L(' Продолжение: ульи меняются местами, недошедшие фигуры проигравшего встают в нём случайно, первый ход — за проигравшим.',' Continuing: the hives swap places, the loser’s undelivered pieces are placed in their hive at random, and the loser moves first.');
   return mm=='classic'
-    ?'Классический режим: до 3 раундов, победа у выигравшего больше раундов.'+cont
-    :'Свободный режим: раунды без общего победителя; после раунда — продолжить или начать заново (сброс счёта).'+cont;
+    ?L('Классический режим: до 3 раундов, победа у выигравшего больше раундов.','Classic mode: up to 3 rounds, the player who wins more rounds wins the match.')+cont
+    :L('Свободный режим: раунды без общего победителя; после раунда — продолжить или начать заново (сброс счёта).','Free mode: rounds without an overall winner; after a round, continue or start over (the score resets).')+cont;
+}
+function rulesEN(o){
+  const li=['Goal: bring all '+(o.swarm?12:o.queen?7:6)+' of your pieces into the opponent’s hive — whoever does it first wins.',
+    'Bee — to any of the 6 neighbouring cells.',
+    'Drone — only to a cell in the direction of one of its corners; its direction never changes by itself. A drone keeps to its own class of cells, so place your drones so that all of them can get through — the game will warn you if not.'+(o.swarm?' In this mode there are always equal numbers of cells of each class, so drones get through with any setup.':''),
+    (o.freeze?'On entering the opponent’s hive a piece gets a limited number of extra moves inside it while it stays there: 1 for a bee, 2 for a queen or a drone (for example, a queen can still push, and a drone can turn and move on the next turn). The number is shown next to the piece and is spent on any action there; leaving the hive resets the counter.':null),
+    (o.freeze?'When the extra moves run out, the piece freezes until the end of the round — it starts to glow and can no longer move.'+(o.queen?' Only a queen’s push can free it — including your own queen.':''):null),
+    (o.freeze&&o.queen?'A piece pushed out of the hive may enter it again, but on re-entry it freezes at once, without extra moves.':null),
+    'One piece moves per turn. '+(o.rep?'You may move the same piece several times in a row.':'You can’t move the same piece twice in a row if you have another move — except when only one of your pieces is left outside the opponent’s hive'+(o.freeze?', or when it is the only piece that can move':'')+': that piece may move as many times in a row as you like.'),
+    (o.freeze?'If a player has no moves at all, the round ends at once with the opponent’s win.':'If only one side can move, the other side skips its turn; if nobody can move, it’s a draw.'),
+    (o.turn?'Turn: instead of a move, flip a drone around (the arrow icon next to it).':null),
+    o.free?'You may enter and leave the opponent’s hive as often as you like.':'You may leave your own hive freely; you can’t leave the opponent’s hive, but you can move inside it.',
+    'The same position three times — draw.',
+    'Draw without progress: if for '+NP_LIMIT+' moves in a row ('+(NP_LIMIT/2)+' each) nobody gets more pieces into the opponent’s hive than before, the round is a draw.',
+    'If a player has one undelivered piece left that needs at least 3 moves, while the opponent is guaranteed to win next move and this can’t be stopped, the round ends: the game decides for the computer, and a human player is offered to resign or play on.',
+    matchRule(o.mm)];
+  if(o.queen)li.splice(3,0,'Queen — moves like a bee, and can also jump over a neighbouring piece (yours or the opponent’s) to the cell behind it. Only she can push: instead of moving she can push a neighbouring piece, yours or the opponent’s, one cell further away while she stays in place. A bee or queen is pushed in the direction it stands from her; a drone only along its own direction of movement, so its cell class does not change.'+(o.swarm?' There are four per player, standing at the edges of the hive.':' She stands in the centre of the hive.')+' During setup she can swap places with any of your pieces.');
+  else li.splice(3,0,'Each player’s first bee to reach the opponent’s hive becomes a queen: from then on she moves like a bee, but can also jump over a neighbouring piece (yours or the opponent’s) to the cell behind it, and instead of moving she can push a neighbouring piece one cell further away while staying in place. Each player can get only one such queen per match.'+(o.freeze?' After entering the hive and turning into a queen, she gets the queen’s counter of extra moves (2), not the bee’s.':''));
+  li.push('Symbols: star — bee, triangle — drone (the corners show its direction)'+(o.queen?', star with a crown — queen':'')+'.'+(theme=='space'?'':' Each player has their own piece colour.'));
+  return li.filter(Boolean).map(t=>'<li>'+t+'</li>').join('');
 }
 function rulesHTML(o){
   o=o||{queen:G.queen,swarm:G.swarm,mm:G.mm,rep:RULES.rep,free:RULES.free,turn:RULES.turn,freeze:RULES.freeze};
+  if(lang=='en')return rulesEN(o);
   const li=['Цель: привести все '+(o.swarm?12:o.queen?7:6)+' своих фигур в улей соперника — кто первый, выигрывает.',
     'Пчела — на любую из 6 соседних клеток.',
     'Трутень — только на клетку по направлению одной из вершин; направление не меняется само. Держится своего класса клеток, поэтому расставляйте трутней так, чтобы все дошли — игра подскажет, если нет.'+(o.swarm?' В этом режиме клеток каждого класса всегда поровну — трутни дойдут при любой расстановке.':''),
@@ -1251,20 +1282,20 @@ function undoMove(){
   UNDO_KEYS.forEach(k=>G[k]=s[k]);
   G.pcs.forEach((q,i)=>Object.assign(q,s.pcs[i]));
   G.rep=new Map(s.rep);G.sel=null;G.hint=null;G.hopelessOffer=null;
-  toast('Ход отменён.');render();
+  toast(L('Ход отменён.','Move undone.'));render();
 }
 function showHint(){
   if(G.phase!='play'||(vsAI&&G.turn==1)||menu)return;
-  toast('Ищу хороший ход…');
+  toast(L('Ищу хороший ход…','Looking for a good move…'));
   setTimeout(()=>{
     if(G.phase!='play'||(vsAI&&G.turn==1))return;
     const b=bestMove(G.turn);
     if(!b){toast('');return}
     const [q,x,r]=b;
     G.sel=q.id;
-    if(x=='push'){G.hint={id:q.id,k:'push',x:r.fx,r:r.fr,tx:r.t.x,tr:r.t.r};toast('Подсказка: толкните королевой отмеченную фигуру.')}
-    else if(x==null){G.hint={id:q.id,k:'turn'};toast('Подсказка: разверните этого трутня.')}
-    else{G.hint={id:q.id,k:'move',x,r};toast('Подсказка: ходите этой фигурой на отмеченную клетку.')}
+    if(x=='push'){G.hint={id:q.id,k:'push',x:r.fx,r:r.fr,tx:r.t.x,tr:r.t.r};toast(L('Подсказка: толкните королевой отмеченную фигуру.','Hint: push the marked piece with your queen.'))}
+    else if(x==null){G.hint={id:q.id,k:'turn'};toast(L('Подсказка: разверните этого трутня.','Hint: turn this drone around.'))}
+    else{G.hint={id:q.id,k:'move',x,r};toast(L('Подсказка: ходите этой фигурой на отмеченную клетку.','Hint: move this piece to the marked cell.'))}
     render();
   },30);
 }
@@ -1478,33 +1509,29 @@ function splashHTML(){
   }
   const ly=290;
   g+='<g transform="translate(200 112)">'+engrave({t:'q'},false,light,shade,2.7,2.6)+'</g>';
-  const txt=(dx,dy,c,w)=>'<text x="'+(200+dx)+'" y="'+(250+dy)+'" text-anchor="middle" font-family="Georgia, \'Times New Roman\', serif" font-size="100" font-weight="700" letter-spacing="7" fill="none" stroke="'+c+'" stroke-width="'+w+'" stroke-linejoin="round">РОЙ</text>';
+  const txt=(dx,dy,c,w)=>'<text x="'+(200+dx)+'" y="'+((lang=='en'?222:235)+dy)+'" text-anchor="middle" font-family="Georgia, \'Times New Roman\', serif" font-size="'+(lang=='en'?60:100)+'" font-weight="700" letter-spacing="'+(lang=='en'?2.5:7)+'" fill="none" stroke="'+c+'" stroke-width="'+w+'" stroke-linejoin="round">'+L('РОЙ','SWARM')+'</text>';
   g+='<g id="ttl">'+txt(2.2,2.8,shade,2.6)+txt(0,0,light,2.3)+'</g>';
   const dv='M130 '+ly+'H184M216 '+ly+'H270';
   g+='<g fill="none" stroke-linecap="round"><path d="'+dv+'" transform="translate(1.6 2)" stroke="'+shade+'" stroke-width="2.4"/><path d="'+dv+'" stroke="'+light+'" stroke-width="2.2"/></g>';
   g+='<g transform="translate(200 '+(ly+2.2)+')">'+engrave({t:'t',d:'up'},false,light,shade,.72,1.8)+'</g>';
-  return '<svg viewBox="0 0 400 400" role="img" aria-label="РОЙ">'+g+'</svg><div class="sp-menu">'
-    +'<div class="sp-themes" role="group" aria-label="Дизайн">'
-    +[['wood','Дерево'],['honey','Соты'],['space','Космос']].map(([k,t])=>'<button class="th-'+k+(theme==k?' on':'')+'" title="'+t+'" aria-label="'+t+'" aria-pressed="'+(theme==k)+'" onclick="pickTheme(\''+k+'\')"></button>').join('')+'</div>'
-    +(fsOk?'<button onclick="toggleFS()">'+(fsOn()?'Оконный режим':'Полный экран')+'</button>':'')
-    +(canResume()?'<button onclick="resumeGame()">Продолжить партию</button>':'')
-    +'<button id="spStart" onclick="hideSplash();if(started)openMenu()">'+(canResume()?'Новая игра':'Начать')+'</button>'
-    +'<button onclick="exitGame()">Выход</button>'
-    +'<button data-music onclick="toggleAllSound()">Звук: '+((musicOn||sfxOn)?'вкл':'выкл')+'</button></div>';
+  return '<svg viewBox="0 0 400 400" role="img" aria-label="'+L('РОЙ','SWARM')+'">'+g+'</svg><div class="sp-menu">'
+    +'<div class="sp-themes" role="group" aria-label="'+L('Дизайн','Design')+'">'
+    +[['wood',L('Дерево','Wood')],['honey',L('Соты','Honeycomb')],['space',L('Космос','Space')]].map(([k,t])=>'<button class="th-'+k+(theme==k?' on':'')+'" title="'+t+'" aria-label="'+t+'" aria-pressed="'+(theme==k)+'" onclick="pickTheme(\''+k+'\')"></button>').join('')+'</div>'
+    +(fsOk?'<button onclick="toggleFS()">'+(fsOn()?L('Оконный режим','Windowed'):L('Полный экран','Full screen'))+'</button>':'')
+    +(canResume()?'<button onclick="resumeGame()">'+L('Продолжить партию','Continue game')+'</button>':'')
+    +'<button id="spStart" onclick="hideSplash();if(started)openMenu()">'+(canResume()?L('Новая игра','New game'):L('Начать','Start'))+'</button>'
+    +'<button onclick="exitGame()">'+L('Выход','Exit')+'</button>'
+    +'<button data-music onclick="toggleAllSound()">'+L('Звук: ','Sound: ')+((musicOn||sfxOn)?L('вкл','on'):L('выкл','off'))+'</button>'
+    +'<div class="sp-lang" role="group" aria-label="Язык / Language"><button class="'+(lang=='ru'?'on':'')+'" aria-pressed="'+(lang=='ru')+'" onclick="setLang(\'ru\')">RU</button><button class="'+(lang=='en'?'on':'')+'" aria-pressed="'+(lang=='en')+'" onclick="setLang(\'en\')">EN</button></div></div>';
 }
 function centerLogo(root){
   try{
     const ttl=root.querySelector&&root.querySelector('#ttl');
-    if(!ttl)return;
-    const t=ttl.querySelector('text:last-child'),svgEl=root.querySelector('svg');
-    if(!t||!t.getStartPositionOfChar)return;
-    const probe=t.cloneNode(false);
-    probe.removeAttribute('letter-spacing');probe.textContent='О';
-    svgEl.appendChild(probe);
-    const w0=probe.getComputedTextLength();
-    svgEl.removeChild(probe);
-    const cx=t.getStartPositionOfChar(1).x+w0/2;
-    if(w0>0&&isFinite(cx))ttl.setAttribute('transform','translate('+(200-cx).toFixed(1)+' 0)');
+    if(!ttl||!ttl.getBBox)return;
+    ttl.removeAttribute('transform');
+    const bb=ttl.getBBox();
+    const cx=bb.x+bb.width/2;
+    if(bb.width>0&&isFinite(cx))ttl.setAttribute('transform','translate('+(200-cx).toFixed(1)+' 0)');
   }catch(e){}
 }
 function hideSplash(){
@@ -1528,7 +1555,7 @@ function exitGame(){
   pseudoFS=false;
   try{if(realFS())(document.exitFullscreen||document.webkitExitFullscreen).call(document)}catch(e){}
   const by=document.getElementById('bye');
-  by.innerHTML='<div class="bye-card"><h2>Вы покинули рой</h2><p>Спасибо за игру! Эту вкладку можно закрыть.</p><button class="go" onclick="backFromExit()">Вернуться в рой</button></div>';
+  by.innerHTML='<div class="bye-card"><h2>'+L('Вы покинули рой','You have left the swarm')+'</h2><p>'+L('Спасибо за игру! Эту вкладку можно закрыть.','Thanks for playing! You can close this tab.')+'</p><button class="go" onclick="backFromExit()">'+L('Вернуться в рой','Back to the swarm')+'</button></div>';
   by.hidden=false;
   try{window.close()}catch(e){}
 }
@@ -1539,11 +1566,11 @@ function backFromExit(){
 }
 document.addEventListener('keydown',e=>{if(splash&&e.key==='Enter'&&!(e.target&&e.target.closest&&e.target.closest('button')))hideSplash()});
 function ruleSettingsHTML(){
-  return '<div class="grp">Настройки</div>'
-    +'<label class="opt"><input type="checkbox" '+(selFree?'checked':'')+' onchange="selFree=this.checked;render()"><span>Заходить в чужой улей и выходить из него сколько угодно раз</span></label>'
-    +'<label class="opt"><input type="checkbox" '+(selRep?'checked':'')+' onchange="selRep=this.checked;render()"><span>Ходить одной и той же фигурой несколько ходов подряд</span></label>'
-    +'<label class="opt"><input type="checkbox" '+(selTurn?'checked':'')+' onchange="selTurn=this.checked;render()"><span>Разворот: потратив ход, развернуть трутня вершиной в противоположную сторону</span></label>'
-    +'<label class="opt"><input type="checkbox" '+(selFreeze?'checked':'')+' onchange="selFreeze=this.checked;render()"><span>Заморозка: ограничить число ходов фигуры в чужом улье, пока она не застынет</span></label>';
+  return '<div class="grp">'+L('Настройки','Options')+'</div>'
+    +'<label class="opt"><input type="checkbox" '+(selFree?'checked':'')+' onchange="selFree=this.checked;render()"><span>'+L('Заходить в чужой улей и выходить из него сколько угодно раз','Enter and leave the opponent’s hive as often as you like')+'</span></label>'
+    +'<label class="opt"><input type="checkbox" '+(selRep?'checked':'')+' onchange="selRep=this.checked;render()"><span>'+L('Ходить одной и той же фигурой несколько ходов подряд','Move the same piece several turns in a row')+'</span></label>'
+    +'<label class="opt"><input type="checkbox" '+(selTurn?'checked':'')+' onchange="selTurn=this.checked;render()"><span>'+L('Разворот: потратив ход, развернуть трутня вершиной в противоположную сторону','Turn: spend a move to flip a drone to face the opposite way')+'</span></label>'
+    +'<label class="opt"><input type="checkbox" '+(selFreeze?'checked':'')+' onchange="selFreeze=this.checked;render()"><span>'+L('Заморозка: ограничить число ходов фигуры в чужом улье, пока она не застынет','Freeze: limit a piece’s moves in the opponent’s hive until it freezes')+'</span></label>';
 }
 function rulesViewHTML(){
   const o={queen:selFig!='none',swarm:selFig=='swarm',mm:selMM,rep:selRep,free:selFree,turn:selTurn,freeze:selFreeze};
@@ -1554,17 +1581,18 @@ function previewSVG(){
   const th=theme,items=[{p:0,t:'s'},{p:0,t:'t',d:'up'},{p:0,t:'q'},{p:1,t:'s'},{p:1,t:'t',d:'dn'},{p:1,t:'q'}];
   let g='<rect x="0" y="0" width="300" height="70" fill="'+({wood:'url(#wd)',honey:'url(#hbg)',space:'url(#sp)'}[th])+'"/>';
   items.forEach((q,i)=>{g+='<g transform="translate('+(29+i*48.4).toFixed(1)+',35)">'+(th=='wood'?pieceWood(q,false):th=='honey'?pieceHoney(q,false):pieceSpace(q,false))+'</g>'});
-  return '<svg class="pv" viewBox="0 0 300 70" role="img" aria-label="Пример фигур">'+g+'</svg>';
+  return '<svg class="pv" viewBox="0 0 300 70" role="img" aria-label="'+L('Пример фигур','Sample pieces')+'">'+g+'</svg>';
 }
 function menuHTML(){
   const sg=(v,on,fn,t,ex)=>'<button '+(ex||'')+'class="'+(v==on?'on':'')+'" onclick="'+fn+'">'+t+'</button>';
   let b='';
   if(menuTab=='game'){
-    b+='<div class="grp">Соперник</div><div class="seg">'+sg(selOpp,true,'selOpp=true;render()','Компьютер')+sg(selOpp,false,'selOpp=false;render()','Человек')+'</div>'
-      +'<div class="grp">Режим игры</div><div class="seg">'+sg(selMM,'classic',"selMM='classic';render()",'Классический')+sg(selMM,'free',"selMM='free';render()",'Свободный')+'</div>'
-      +'<p class="dsc">'+(selMM=='classic'?'Три раунда, после них объявляется победитель. Каждый раунд продолжается с получившейся расстановкой.':'Без общего победителя. После раунда вы решаете: продолжить с той же расстановкой или начать заново. Победы считаются, пока вы не начнёте заново.')+'</p>'
-      +'<div class="grp">Масштаб роя</div><div class="seg three">'+sg(selFig,'none',"selFig='none';render()",'Без королевы')+sg(selFig,'queen',"selFig='queen';render()",'С королевой')+sg(selFig,'swarm',"selFig='swarm';render()",'Рой против роя')+'</div>'
-      +'<p class="dsc">'+(selFig=='swarm'?'12 фигур: 4 королевы, 4 пчелы, 4 трутня. Улей вытянут на 2 ряда, с запасом нейтральных клеток вокруг.':selFig=='queen'?'7 фигур. В центре каждого улья стоит королева.':'6 фигур.')+'</p>'
+    b+='<div class="grp">'+L('Соперник','Opponent')+'</div><div class="seg">'+sg(selOpp,true,'selOpp=true;render()',L('Компьютер','Computer'))+sg(selOpp,false,'selOpp=false;render()',L('Человек','Human'))+'</div>'
+      +'<div class="grp">'+L('Режим игры','Game mode')+'</div><div class="seg">'+sg(selMM,'classic',"selMM='classic';render()",L('Классический','Classic'))+sg(selMM,'free',"selMM='free';render()",L('Свободный','Free'))+'</div>'
+      +'<p class="dsc">'+(selMM=='classic'?L('Три раунда, после них объявляется победитель. Каждый раунд продолжается с получившейся расстановкой.','Three rounds, then the winner is announced. Each round continues from the resulting position.'):L('Без общего победителя. После раунда вы решаете: продолжить с той же расстановкой или начать заново. Победы считаются, пока вы не начнёте заново.','No overall winner. After each round you choose: continue from the same position or start over. Wins are counted until you start over.'))+'</p>'
+      +'<div class="grp">'+L('Масштаб роя','Swarm size')+'</div><div class="seg three">'+sg(selFig,'none',"selFig='none';render()",L('Без королевы','No queen'))+sg(selFig,'queen',"selFig='queen';render()",L('С королевой','With queen'))+sg(selFig,'swarm',"selFig='swarm';render()",L('Рой против роя','Swarm vs swarm'))+'</div>'
+      +'<p class="dsc">'+(selFig=='swarm'?L('12 фигур: 4 королевы, 4 пчелы, 4 трутня. Улей вытянут на 2 ряда, с запасом нейтральных клеток вокруг.','12 pieces: 4 queens, 4 bees, 4 drones. The hive is two rows long, with spare neutral cells around it.'):selFig=='queen'?L('7 фигур. В центре каждого улья стоит королева.','7 pieces. A queen stands in the centre of each hive.'):L('6 фигур.','6 pieces.'))+'</p>'
+      +'<div class="grp">Язык / Language</div><div class="seg">'+sg(lang,'ru',"setLang('ru')",'Русский')+sg(lang,'en',"setLang('en')",'English')+'</div>'
       ;
   }else if(menuTab=='ruleset'){
     b+=ruleSettingsHTML();
@@ -1573,27 +1601,27 @@ function menuHTML(){
   }else if(menuTab=='about'){
     b+=aboutHTML();
   }else if(menuTab=='look'){
-    b+='<div class="grp">Дизайн</div><div class="seg three">'
-      +[['wood','Дерево'],['honey','Соты'],['space','Космос']].map(([k,t])=>sg(theme,k,"pickTheme('"+k+"')",t)).join('')+'</div>'
-      +'<p class="dsc">'+({wood:'Деревянный стол. Тёмные и светлые фишки с тонкой гравировкой.',honey:'Медовые соты. Янтарные камни с гравировкой.',space:'Фиолетовый космос с созвездиями. Звёзды и треугольники с гравировкой.'}[theme])+'</p>'
+    b+='<div class="grp">'+L('Дизайн','Design')+'</div><div class="seg three">'
+      +[['wood',L('Дерево','Wood')],['honey',L('Соты','Honeycomb')],['space',L('Космос','Space')]].map(([k,t])=>sg(theme,k,"pickTheme('"+k+"')",t)).join('')+'</div>'
+      +'<p class="dsc">'+(lang=='en'?{wood:'A wooden table. Dark and light pieces with fine engraving.',honey:'Honeycomb. Amber stones with engraving.',space:'Purple space with constellations. Engraved stars and triangles.'}:{wood:'Деревянный стол. Тёмные и светлые фишки с тонкой гравировкой.',honey:'Медовые соты. Янтарные камни с гравировкой.',space:'Фиолетовый космос с созвездиями. Звёзды и треугольники с гравировкой.'})[theme]+'</p>'
       +previewSVG();
   }else{
-    b+='<div class="grp">Музыка</div><div class="seg three">'
-      +[['asia','Японская'],['space','Космическая'],['nature','Природная']].map(([k,t])=>sg(Music.style(),k,"pickStyle('"+k+"')",t,'data-music ')).join('')+'</div>'
-      +'<div class="grp">Звуки хода и выбора фигуры</div><div class="seg">'
-      +[['marimba','Маримба'],['wood','Деревянные кости']].map(([k,t])=>sg(sfxStyle,k,"pickSfx('"+k+"')",t)).join('')+'</div>'
-      +'<div class="seg"><button data-music class="'+(musicOn?'on':'')+'" onclick="toggleMusic()">Музыка: '+(musicOn?'вкл':'выкл')+'</button>'
-      +'<button class="'+(sfxOn?'on':'')+'" onclick="toggleSfx()">Звуки: '+(sfxOn?'вкл':'выкл')+'</button></div>'
-      +'<label class="vol">Громкость музыки <input type="range" min="0" max="100" value="'+Math.round(Music.vol()*100)+'" oninput="Music.setVol(this.value/100)" aria-label="Громкость музыки"></label>';
+    b+='<div class="grp">'+L('Музыка','Music')+'</div><div class="seg three">'
+      +[['asia',L('Японская','Japanese')],['space',L('Космическая','Cosmic')],['nature',L('Природная','Nature')]].map(([k,t])=>sg(Music.style(),k,"pickStyle('"+k+"')",t,'data-music ')).join('')+'</div>'
+      +'<div class="grp">'+L('Звуки хода и выбора фигуры','Move and selection sounds')+'</div><div class="seg">'
+      +[['marimba',L('Маримба','Marimba')],['wood',L('Деревянные кости','Wooden dice')]].map(([k,t])=>sg(sfxStyle,k,"pickSfx('"+k+"')",t)).join('')+'</div>'
+      +'<div class="seg"><button data-music class="'+(musicOn?'on':'')+'" onclick="toggleMusic()">'+L('Музыка: ','Music: ')+(musicOn?L('вкл','on'):L('выкл','off'))+'</button>'
+      +'<button class="'+(sfxOn?'on':'')+'" onclick="toggleSfx()">'+L('Звуки: ','Sounds: ')+(sfxOn?L('вкл','on'):L('выкл','off'))+'</button></div>'
+      +'<label class="vol">'+L('Громкость музыки','Music volume')+' <input type="range" min="0" max="100" value="'+Math.round(Music.vol()*100)+'" oninput="Music.setVol(this.value/100)" aria-label="'+L('Громкость музыки','Music volume')+'"></label>';
   }
-  return '<div class="card"><h2>Установки</h2><div class="tabs">'
-    +[['game','Игра'],['ruleset','Настройки правил'],['rules','Правила'],['look','Дизайн'],['sound','Звук']].map(([k,t])=>sg(menuTab,k,"setTab('"+k+"')",t)).join('')+'</div>'
-    +b+'<div class="foot"><button class="go big" onclick="startGame()">'+(started?'Начать новую игру':'Начать игру')+'</button>'
-    +(started?'<button class="sec" onclick="menu=false;render()">Вернуться к игре</button>':'')
-    +(fsOk?'<button class="sec" onclick="toggleFS()">'+(fsOn()?'Оконный режим':'Полный экран')+'</button>':'')
-    +'<button class="sec" onclick="showTut()">Как играть</button>'
-    +'<button class="sec" onclick="statArm=false;setTab(\'about\')">Об игре и статистика</button>'
-    +'<button class="sec" onclick="showSplash()">Главное меню</button></div></div>';
+  return '<div class="card"><h2>'+L('Установки','Settings')+'</h2><div class="tabs">'
+    +[['game',L('Игра','Game')],['ruleset',L('Настройки правил','Rule options')],['rules',L('Правила','Rules')],['look',L('Дизайн','Design')],['sound',L('Звук','Sound')]].map(([k,t])=>sg(menuTab,k,"setTab('"+k+"')",t)).join('')+'</div>'
+    +b+'<div class="foot"><button class="go big" onclick="startGame()">'+(started?L('Начать новую игру','Start a new game'):L('Начать игру','Start game'))+'</button>'
+    +(started?'<button class="sec" onclick="menu=false;render()">'+L('Вернуться к игре','Back to the game')+'</button>':'')
+    +(fsOk?'<button class="sec" onclick="toggleFS()">'+(fsOn()?L('Оконный режим','Windowed'):L('Полный экран','Full screen'))+'</button>':'')
+    +'<button class="sec" onclick="showTut()">'+L('Как играть','How to play')+'</button>'
+    +'<button class="sec" onclick="statArm=false;setTab(\'about\')">'+L('Об игре и статистика','About and statistics')+'</button>'
+    +'<button class="sec" onclick="showSplash()">'+L('Главное меню','Main menu')+'</button></div></div>';
 }
 function starsSVG(){
   const rnd=rng(5);let g='';
@@ -1687,12 +1715,12 @@ function addStat(w,mo){
   s[figMode]=o;
   try{localStorage.setItem('ulei-stats',JSON.stringify(s))}catch(e){}
 }
-const FIGN=[['none','Без королевы'],['queen','С королевой'],['swarm','Рой против роя']];
+const FIGN=[['none','Без королевы','No queen'],['queen','С королевой','With queen'],['swarm','Рой против роя','Swarm vs swarm']];
 function statsTable(){
   const s=loadStats();
-  return '<table class="stats"><tr><th>Режим</th><th>Победы</th><th>Пораж.</th><th>Ничьи</th><th>Матчи</th></tr>'
-    +FIGN.map(([k,t])=>{const o=s[k]||{};return '<tr><td>'+t+'</td><td>'+(o.w||0)+'</td><td>'+(o.l||0)+'</td><td>'+(o.d||0)+'</td><td>'+(o.mw||0)+' : '+(o.ml||0)+'</td></tr>'}).join('')+'</table>'
-    +'<p class="dsc">Победы, поражения и ничьи считаются по раундам против компьютера. «Матчи» — выигранные и проигранные матчи классического режима.</p>';
+  return '<table class="stats"><tr><th>'+L('Режим','Mode')+'</th><th>'+L('Победы','Wins')+'</th><th>'+L('Пораж.','Losses')+'</th><th>'+L('Ничьи','Draws')+'</th><th>'+L('Матчи','Matches')+'</th></tr>'
+    +FIGN.map(([k,t0,te])=>{const t=L(t0,te),o=s[k]||{};return '<tr><td>'+t+'</td><td>'+(o.w||0)+'</td><td>'+(o.l||0)+'</td><td>'+(o.d||0)+'</td><td>'+(o.mw||0)+' : '+(o.ml||0)+'</td></tr>'}).join('')+'</table>'
+    +'<p class="dsc">'+L('Победы, поражения и ничьи считаются по раундам против компьютера. «Матчи» — выигранные и проигранные матчи классического режима.','Wins, losses and draws count rounds against the computer. “Matches” are classic-mode matches won and lost.')+'</p>';
 }
 function resetStats(){
   if(!statArm){statArm=true;return render()}
@@ -1700,21 +1728,21 @@ function resetStats(){
   render();
 }
 function aboutHTML(){
-  return '<div class="grp">РОЙ · версия '+VERSION+'</div>'
-    +'<p class="dsc">Настольная игра для двоих на шестиугольном поле: переведите свой рой в улей соперника раньше него. Пчёлы, трутни и королевы, три дизайна и три музыкальные темы. Графика и звук создаются прямо в браузере.</p>'
-    +'<div class="grp">Статистика против компьютера</div>'+statsTable()
-    +'<button class="sec" onclick="resetStats()">'+(statArm?'Точно сбросить? Нажмите ещё раз':'Сбросить статистику')+'</button>';
+  return '<div class="grp">'+L('РОЙ · версия ','SWARM · version ')+VERSION+'</div>'
+    +'<p class="dsc">'+L('Настольная игра для двоих на шестиугольном поле: переведите свой рой в улей соперника раньше него. Пчёлы, трутни и королевы, три дизайна и три музыкальные темы. Графика и звук создаются прямо в браузере.','A board game for two on a hexagonal field: move your swarm into the opponent’s hive before they do. Bees, drones and queens, three designs and three music themes. Graphics and sound are generated right in the browser.')+'</p>'
+    +'<div class="grp">'+L('Статистика против компьютера','Statistics against the computer')+'</div>'+statsTable()
+    +'<button class="sec" onclick="resetStats()">'+(statArm?L('Точно сбросить? Нажмите ещё раз','Really reset? Tap again'):L('Сбросить статистику','Reset statistics'))+'</button>';
 }
 /* ---------- экран итогов матча ---------- */
 function matchEndHTML(){
   const a=G.score[0],b=G.score[1],w=a==b?-1:a>b?0:1;
-  const head=w<0?'Матч окончен вничью':vsAI?(w==0?'Вы выиграли матч!':'Матч выиграл компьютер'):cap(N[w])+' выиграли матч!';
-  const res=h=>h.w==-3?'ничья: нет прогресса':h.w==-2?'ничья: повтор позиции':h.w<0?'ничья':(chipHTML(h.w)+' '+cap(N[h.w])+(h.by=='stuck'?' (соперник без ходов)':h.by=='hopeless'?' (досрочно)':''));
+  const head=w<0?L('Матч окончен вничью','The match is a draw'):vsAI?(w==0?L('Вы выиграли матч!','You won the match!'):L('Матч выиграл компьютер','The computer won the match')):L(cap(N[w])+' выиграли матч!',N[w]+' wins the match!');
+  const res=h=>h.w==-3?L('ничья: нет прогресса','draw: no progress'):h.w==-2?L('ничья: повтор позиции','draw: repeated position'):h.w<0?L('ничья','draw'):(chipHTML(h.w)+' '+cap(N[h.w])+(h.by=='stuck'?L(' (соперник без ходов)',' (opponent had no moves)'):h.by=='hopeless'?L(' (досрочно)',' (early)'):''));
   let st='';
-  if(vsAI){const o=loadStats()[figMode]||{};st='<p class="mut">В этом режиме против компьютера: раундов выиграно '+(o.w||0)+', проиграно '+(o.l||0)+', ничьих '+(o.d||0)+'.</p>'}
-  return '<div class="me-card"><div class="mut">Итог матча</div><h2>'+head+'</h2><p class="me-big">'+scoreHTML()+'</p>'
-    +'<ul class="me-list">'+G.hist.map(h=>'<li><span>Раунд '+h.r+'</span><span>'+res(h)+'</span></li>').join('')+'</ul>'+st
-    +'<div class="me-btns"><button class="go" onclick="init(G.R)">Новый матч</button><button onclick="G.matchCard=false;openMenu()">Установки</button><button onclick="G.matchCard=false;render()">Посмотреть поле</button></div></div>';
+  if(vsAI){const o=loadStats()[figMode]||{};st='<p class="mut">'+L('В этом режиме против компьютера: раундов выиграно '+(o.w||0)+', проиграно '+(o.l||0)+', ничьих '+(o.d||0)+'.','In this mode against the computer: rounds won '+(o.w||0)+', lost '+(o.l||0)+', drawn '+(o.d||0)+'.')+'</p>'}
+  return '<div class="me-card"><div class="mut">'+L('Итог матча','Match result')+'</div><h2>'+head+'</h2><p class="me-big">'+scoreHTML()+'</p>'
+    +'<ul class="me-list">'+G.hist.map(h=>'<li><span>'+L('Раунд ','Round ')+h.r+'</span><span>'+res(h)+'</span></li>').join('')+'</ul>'+st
+    +'<div class="me-btns"><button class="go" onclick="init(G.R)">'+L('Новый матч','New match')+'</button><button onclick="G.matchCard=false;openMenu()">'+L('Установки','Settings')+'</button><button onclick="G.matchCard=false;render()">'+L('Посмотреть поле','View the board')+'</button></div></div>';
 }
 /* ---------- сохранение партии ---------- */
 function saveGame(){
@@ -1739,14 +1767,23 @@ function resumeGame(){
   menu=false;
   init(8);
   const g=o.g;
-  if(g.pcs.length!=G.pcs.length){started=true;toast('Не удалось восстановить партию — начинаем новую.');return hideSplash()}
+  if(g.pcs.length!=G.pcs.length){started=true;toast(L('Не удалось восстановить партию — начинаем новую.','Could not restore the game — starting a new one.'));return hideSplash()}
   Object.keys(g).forEach(k=>{if(k!='pcs'&&k!='rep'&&g[k]!==undefined)G[k]=g[k]});
   G.pcs.forEach((q,i)=>Object.assign(q,g.pcs[i]));
   G.rep=new Map(g.rep||[]);G.winFlash=false;G.sel=null;G.hopelessOffer=null;G.matchCard=false;G.mm=matchMode;
-  started=true;pcPrev.clear();hideSplash();toast('Партия восстановлена.');render();
+  started=true;pcPrev.clear();hideSplash();toast(L('Партия восстановлена.','Game restored.'));render();
 }
 /* ---------- обучение ---------- */
-const TUT=[
+const TUT_EN=[
+  {t:'Goal',pic:'hive',x:'Move all your pieces into the opponent’s hive — the highlighted area on the other side of the board. Whoever does it first wins the round.'},
+  {t:'Bee',pic:'s',x:'The bee (six-pointed star) moves to any of the six neighbouring free cells.'},
+  {t:'Drone',pic:'t',x:'The drone (triangle) moves only to a cell one of its corners points to, and always stays on cells of its own “class”. Place your drones so that all of them can get through — the game will warn you if not.'},
+  {t:'Queen',pic:'q',x:'The queen (star with a crown) moves like a bee and can jump over a neighbouring piece. Instead of moving she can push a neighbouring piece one cell further. In “No queen” mode the first bee to reach the opponent’s hive becomes the queen.'},
+  {t:'How to move',pic:'go',x:'Tap your piece — dots show where it can go — then tap the cell. Usually you can’t move the same piece twice in a row. If nobody gets further into the opponent’s hive for '+NP_LIMIT+' moves, the round is a draw. The “Hint” button shows a good move, and against the computer you can undo your move.'},
+  {t:'Setup',pic:'setup',x:'Before a round, tap two of your pieces to swap them, then “Ready”. The full rules are always in “Settings → Rules”, and this tutorial is under “How to play”.'}
+];
+let TUT;
+const TUT_RU=[
   {t:'Цель игры',pic:'hive',x:'Переведите все свои фигуры в улей соперника — выделенную зону на другой стороне поля. Кто сделает это первым, выигрывает раунд.'},
   {t:'Пчела',pic:'s',x:'Пчела (шестиконечная звезда) ходит на любую из шести соседних свободных клеток.'},
   {t:'Трутень',pic:'t',x:'Трутень (треугольник) ходит только на клетку, куда указывает одна из его вершин, и всегда остаётся на клетках своего «класса». Расставляйте трутней так, чтобы все дошли, — игра подскажет, если нет.'},
@@ -1778,17 +1815,17 @@ function tutPicSVG(kind){
 }
 function tutHTML(){
   const s=TUT[tutStep],last=tutStep==TUT.length-1;
-  return '<div class="me-card"><div class="mut">Как играть · '+(tutStep+1)+' из '+TUT.length+'</div><h2>'+s.t+'</h2>'+tutPicSVG(s.pic)
+  return '<div class="me-card"><div class="mut">'+L('Как играть · '+(tutStep+1)+' из ','How to play · '+(tutStep+1)+' of ')+TUT.length+'</div><h2>'+s.t+'</h2>'+tutPicSVG(s.pic)
     +'<p class="tut-txt">'+s.x+'</p><div class="tut-dots">'+TUT.map((_,i)=>'<i class="'+(i==tutStep?'on':'')+'"></i>').join('')+'</div>'
-    +'<div class="me-btns">'+(tutStep>0?'<button onclick="tutGo(-1)">Назад</button>':'')
-    +'<button class="go" onclick="tutGo(1)">'+(last?'Понятно, играем':'Дальше')+'</button>'
-    +(last?'':'<button onclick="tutEnd()">Пропустить</button>')+'</div></div>';
+    +'<div class="me-btns">'+(tutStep>0?'<button onclick="tutGo(-1)">'+L('Назад','Back')+'</button>':'')
+    +'<button class="go" onclick="tutGo(1)">'+(last?L('Понятно, играем','Got it, let’s play'):L('Дальше','Next'))+'</button>'
+    +(last?'':'<button onclick="tutEnd()">'+L('Пропустить','Skip')+'</button>')+'</div></div>';
 }
 /* ---------- приложение: service worker и обновление версий ---------- */
 let swReg=null,swWant=false;
 function showUpdate(w){
   const u=document.getElementById('upd');if(!u)return;
-  u.innerHTML='<span>Доступна новая версия игры</span><button class="go" id="updGo">Обновить</button><button id="updLater">Позже</button>';
+  u.innerHTML='<span>'+L('Доступна новая версия игры','A new version of the game is available')+'</span><button class="go" id="updGo">'+L('Обновить','Update')+'</button><button id="updLater">'+L('Позже','Later')+'</button>';
   u.hidden=false;
   document.getElementById('updGo').onclick=()=>{u.hidden=true;saveGame();swWant=true;w.postMessage('skipWaiting')};
   document.getElementById('updLater').onclick=()=>{u.hidden=true};
@@ -1822,7 +1859,12 @@ function render(){
   const tcm=document.querySelector&&document.querySelector('meta[name=theme-color]');if(tcm)tcm.setAttribute('content',({wood:'#24160a',honey:'#f3dc98',space:'#07031a'})[theme]);
   bc.toggle('fs',fs);bc.toggle('need',fs&&(G.phase=='setup'||G.phase=='over'));
   if(!fs)bc.remove('panel');
-  document.getElementById('fsmenu').textContent=bc.contains('panel')?'Закрыть':'Опции';
+  document.getElementById('fsmenu').textContent=bc.contains('panel')?L('Закрыть','Close'):L('Опции','Options');
+  if(de&&de.setAttribute)de.setAttribute('lang',lang);
+  document.title=L('РОЙ','SWARM');
+  const h1=document.querySelector&&document.querySelector('header h1');if(h1)h1.textContent=L('РОЙ','SWARM');
+  const sm=document.querySelector&&document.querySelector('main>details>summary');if(sm)sm.textContent=L('Правила','Rules');
+  if(svg.setAttribute)svg.setAttribute('aria-label',L('Игровое поле из шестиугольников','Hexagonal game board'));
   const R=G.R,sel=G.sel!=null?G.pcs[G.sel]:null;
   const mv=sel?moves(sel).map(m=>key(...m)):[];
   const th=theme,m=TH[th].m,flip=G.flip;
@@ -1893,11 +1935,11 @@ function render(){
       });
     });
   }
-  document.getElementById('score').innerHTML=[(G.mm=='classic'?'Классический режим, раунд '+Math.min(G.round,3)+' из 3':'Свободный режим, раунд '+G.round),scoreHTML()].concat(G.swarm?['рой против роя']:G.queen?['с королевой']:[]).concat((RULES.free||RULES.rep||RULES.turn)?['доп. правила']:[]).join(', ');
+  document.getElementById('score').innerHTML=[(G.mm=='classic'?L('Классический режим, раунд '+Math.min(G.round,3)+' из 3','Classic mode, round '+Math.min(G.round,3)+' of 3'):L('Свободный режим, раунд ','Free mode, round ')+G.round),scoreHTML()].concat(G.swarm?[L('рой против роя','swarm vs swarm')]:G.queen?[L('с королевой','with queen')]:[]).concat((RULES.free||RULES.rep||RULES.turn)?[L('доп. правила','extra rules')]:[]).join(', ');
   document.getElementById('rules').innerHTML=rulesHTML();
   const st=document.getElementById('status');
-  if(G.phase=='setup')st.textContent='Расстановка: '+N[G.setupP]+(vsAI?' (вы)':'')+'. Нажмите на две свои фигуры, чтобы поменять их местами.';
-  else if(G.phase=='play')st.innerHTML=(vsAI&&G.turn==1?'Думает компьютер':'Ходят '+N[G.turn])+' <span class="chip" style="background:'+CHIP[theme][G.turn]+'"></span>'+(G.hopelessOffer?' — у '+N[G.hopelessOffer.loser]+' уже нет шансов догнать соперника':'')+(G.np>=NP_LIMIT-10?' <span class="mut">· без продвижения в улей ещё '+(NP_LIMIT-G.np)+' ход. — и ничья</span>':'');
+  if(G.phase=='setup')st.textContent=L('Расстановка: '+N[G.setupP]+(vsAI?' (вы)':'')+'. Нажмите на две свои фигуры, чтобы поменять их местами.','Setup: '+N[G.setupP]+(vsAI?' (you)':'')+'. Tap two of your pieces to swap them.');
+  else if(G.phase=='play')st.innerHTML=(vsAI&&G.turn==1?L('Думает компьютер','The computer is thinking'):L('Ходят '+N[G.turn],N[G.turn]+' to move'))+' <span class="chip" style="background:'+CHIP[theme][G.turn]+'"></span>'+(G.hopelessOffer?L(' — у '+N[G.hopelessOffer.loser]+' уже нет шансов догнать соперника',' — '+N[G.hopelessOffer.loser]+' can no longer catch up'):'')+(G.np>=NP_LIMIT-10?' <span class="mut">'+L('· без продвижения в улей ещё '+(NP_LIMIT-G.np)+' ход. — и ничья','· '+(NP_LIMIT-G.np)+' more moves without progress — and it’s a draw')+'</span>':'');
   else if(G.phase=='over')st.innerHTML=overText();
   else st.textContent='';
   const wf=document.getElementById('winFlash');
@@ -1909,30 +1951,46 @@ function render(){
   if(tutStep>=0){tu.innerHTML=tutHTML();tu.hidden=false}else if(!tu.hidden||tu.innerHTML){tu.hidden=true;tu.innerHTML=''}
   let c='';
   if(G.phase=='setup'){
-    c+='<button class="go" onclick="ready()">'+(G.setupP==0&&!vsAI?'Готово, дальше — '+N[1]:'Готово, начать игру')+'</button>';
-    c+='<button onclick="stdP(G.setupP)">Стандартная расстановка</button>';
+    c+='<button class="go" onclick="ready()">'+(G.setupP==0&&!vsAI?L('Готово, дальше — '+N[1],'Ready, next: '+N[1]):L('Готово, начать игру','Ready, start the game'))+'</button>';
+    c+='<button onclick="stdP(G.setupP)">'+L('Стандартная расстановка','Standard setup')+'</button>';
   }
   if(G.phase=='over')c+=overButtons();
-  if(G.phase=='play'&&G.hopelessOffer)c+='<button class="go" onclick="concedeHopeless()">Признать поражение</button><button onclick="dismissHopeless()">Играть дальше</button>';
+  if(G.phase=='play'&&G.hopelessOffer)c+='<button class="go" onclick="concedeHopeless()">'+L('Признать поражение','Resign')+'</button><button onclick="dismissHopeless()">'+L('Играть дальше','Play on')+'</button>';
   if(G.phase=='play'){
     const myTurn=!(vsAI&&G.turn==1);
-    if(vsAI)c+='<button onclick="undoMove()"'+(G.undo.length?'':' disabled')+'>Отменить ход</button>';
-    c+='<button onclick="showHint()"'+(myTurn?'':' disabled')+'>Подсказка</button>';
+    if(vsAI)c+='<button onclick="undoMove()"'+(G.undo.length?'':' disabled')+'>'+L('Отменить ход','Undo move')+'</button>';
+    c+='<button onclick="showHint()"'+(myTurn?'':' disabled')+'>'+L('Подсказка','Hint')+'</button>';
   }
-  c+='<button onclick="openMenu()">Установки</button>';
-  c+='<button onclick="init(G.R)">Начать заново</button>';
-  if(fsOk)c+='<button onclick="toggleFS()">'+(fsOn()?'Оконный режим':'Полный экран')+'</button>';
-  c+='<button onclick="toggleFlip()">Отразить экран</button>';
-  c+='<button data-music class="'+(musicOn?'on':'')+'" onclick="toggleMusic()">Музыка: '+(musicOn?'вкл':'выкл')+'</button>';
+  c+='<button onclick="openMenu()">'+L('Установки','Settings')+'</button>';
+  c+='<button onclick="init(G.R)">'+L('Начать заново','Start over')+'</button>';
+  if(fsOk)c+='<button onclick="toggleFS()">'+(fsOn()?L('Оконный режим','Windowed'):L('Полный экран','Full screen'))+'</button>';
+  c+='<button onclick="toggleFlip()">'+L('Отразить экран','Flip board')+'</button>';
+  c+='<button data-music class="'+(musicOn?'on':'')+'" onclick="toggleMusic()">'+L('Музыка: ','Music: ')+(musicOn?L('вкл','on'):L('выкл','off'))+'</button>';
   document.getElementById('ctl').innerHTML=c;
   if(menu){
     ov.hidden=false;
     ov.innerHTML=menuHTML();
   }else ov.hidden=true;
+  fitCards();
   saveGame();
   maybeAI();
 }
+/* карточки меню, обучения и итогов ужимаются, чтобы целиком помещаться на экран (крупный шрифт телефона) */
+function fitCards(){
+  try{
+    if(typeof innerHeight=='undefined'||!document.querySelectorAll)return;
+    document.querySelectorAll('#ov .card,#tut .me-card,#matchEnd .me-card').forEach(el=>{
+      if(!el.style||el.closest('[hidden]'))return;
+      el.style.zoom='';
+      const par=el.parentElement,h=el.offsetHeight,w=el.scrollWidth,pw=par.clientWidth-16;
+      if(!h||!w)return;
+      const k=Math.max(.6,Math.min(1,(innerHeight-20)/h,pw/w));
+      if(k<.99)el.style.zoom=k.toFixed(3);
+    });
+  }catch(e){}
+}
 function onResize(){
+  fitCards();
   const pv=phoneView()+'|'+((typeof innerHeight!='undefined'&&innerHeight<520&&innerWidth>innerHeight)?1:0);
   if(pv!==lastPV){lastPV=pv;render()}
 }
@@ -1950,3 +2008,4 @@ initSW();
 </script>
 </body>
 </html>
+
