@@ -634,14 +634,12 @@ const Music=(()=>{
     bus=ctx.createGain();
     bus.connect(dry);bus.connect(verb);verb.connect(wet);
     dry.connect(lp);wet.connect(lp);lp.connect(master);master.connect(ctx.destination);
-    // звуки хода: отдельный тракт, не зависит от музыки
     sfxIn=ctx.createGain();
     const sl=ctx.createBiquadFilter();sl.type='lowpass';sl.frequency.value=2600;
     const sd=ctx.createGain();sd.gain.value=.8;
     const sv=ctx.createConvolver();sv.buffer=impulse(.9,3);
     const sw=ctx.createGain();sw.gain.value=.35;
     sfxIn.connect(sl);sl.connect(sd);sd.connect(ctx.destination);sl.connect(sv);sv.connect(sw);sw.connect(ctx.destination);
-    // шум для ветра, воды и космического фона
     noiseBuf=ctx.createBuffer(1,ctx.sampleRate*2,ctx.sampleRate);
     const nd=noiseBuf.getChannelData(0);for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;
     return true;
@@ -675,7 +673,6 @@ const Music=(()=>{
     });
   }
 
-  /* ---------- японская медитация: ветер, сякухати, фурин, кото ---------- */
   const MIYAKO=[62,63,67,69,70,74,75,79,81,82];
   function pluck(t,f,pk,out){
     const dur=3.4,g=ctx.createGain(),g2=ctx.createGain(),o=ctx.createOscillator(),o2=ctx.createOscillator(),lp=ctx.createBiquadFilter();
@@ -759,7 +756,6 @@ const Music=(()=>{
     }
   };
 
-  /* ---------- космическая медитация: спейс-эмбиент ---------- */
   const CS=[[33,45,52,59,64],[29,41,48,55,60],[36,48,55,59,62],[40,47,52,55,59]];
   const SPACE={
     init(t,out){
@@ -804,7 +800,6 @@ const Music=(()=>{
     }
   };
 
-  /* ---------- природная медитация ---------- */
   const CN=[[45,52,57,61],[43,50,55,62]];
   function bird(t,out){
     const n=2+Math.floor(Math.random()*4),base=rnd(2400,4300),dst=panTo(out);let tt=t;
@@ -901,7 +896,6 @@ const Music=(()=>{
     if(document.hidden){ctx.suspend()}else{ctx.resume()}
   });
 
-  /* ---------- звуки хода ---------- */
   function tap(t,f,pk,d){
     [[1,pk,d],[3.98,pk*.22,d*.25]].forEach(([k,a,dd])=>{
       const o=ctx.createOscillator(),g=ctx.createGain();
@@ -1266,7 +1260,6 @@ function aiMove(){
   else if(best[1]==null)doTurn(best[0]);
   else doMove(best[0],best[1],best[2]);
 }
-/* ---------- отмена хода и подсказка ---------- */
 const UNDO_KEYS=['turn','phase','last','lastMove','winner','winBy','queenMade','mc','np','best','score','matchOver'];
 function pushUndo(){
   if(!vsAI||G.phase!='play'||G.turn!=0)return;
@@ -1700,7 +1693,6 @@ function pickTheme(n){
   render();
 }
 
-/* ---------- итог раунда, статистика ---------- */
 function roundEnded(){
   G.ended=true;
   G.hist.push({r:G.round,w:G.winner,by:G.winBy||null});
@@ -1733,7 +1725,6 @@ function aboutHTML(){
     +'<div class="grp">'+L('Статистика против компьютера','Statistics against the computer')+'</div>'+statsTable()
     +'<button class="sec" onclick="resetStats()">'+(statArm?L('Точно сбросить? Нажмите ещё раз','Really reset? Tap again'):L('Сбросить статистику','Reset statistics'))+'</button>';
 }
-/* ---------- экран итогов матча ---------- */
 function matchEndHTML(){
   const a=G.score[0],b=G.score[1],w=a==b?-1:a>b?0:1;
   const head=w<0?L('Матч окончен вничью','The match is a draw'):vsAI?(w==0?L('Вы выиграли матч!','You won the match!'):L('Матч выиграл компьютер','The computer won the match')):L(cap(N[w])+' выиграли матч!',N[w]+' wins the match!');
@@ -1744,7 +1735,6 @@ function matchEndHTML(){
     +'<ul class="me-list">'+G.hist.map(h=>'<li><span>'+L('Раунд ','Round ')+h.r+'</span><span>'+res(h)+'</span></li>').join('')+'</ul>'+st
     +'<div class="me-btns"><button class="go" onclick="init(G.R)">'+L('Новый матч','New match')+'</button><button onclick="G.matchCard=false;openMenu()">'+L('Установки','Settings')+'</button><button onclick="G.matchCard=false;render()">'+L('Посмотреть поле','View the board')+'</button></div></div>';
 }
-/* ---------- сохранение партии ---------- */
 function saveGame(){
   if(!started||!G)return;
   try{
@@ -1773,7 +1763,6 @@ function resumeGame(){
   G.rep=new Map(g.rep||[]);G.winFlash=false;G.sel=null;G.hopelessOffer=null;G.matchCard=false;G.mm=matchMode;
   started=true;pcPrev.clear();hideSplash();toast(L('Партия восстановлена.','Game restored.'));render();
 }
-/* ---------- обучение ---------- */
 const TUT_EN=[
   {t:'Goal',pic:'hive',x:'Move all your pieces into the opponent’s hive — the highlighted area on the other side of the board. Whoever does it first wins the round.'},
   {t:'Bee',pic:'s',x:'The bee (six-pointed star) moves to any of the six neighbouring free cells.'},
@@ -1821,7 +1810,6 @@ function tutHTML(){
     +'<button class="go" onclick="tutGo(1)">'+(last?L('Понятно, играем','Got it, let’s play'):L('Дальше','Next'))+'</button>'
     +(last?'':'<button onclick="tutEnd()">'+L('Пропустить','Skip')+'</button>')+'</div></div>';
 }
-/* ---------- приложение: service worker и обновление версий ---------- */
 let swReg=null,swWant=false;
 function showUpdate(w){
   const u=document.getElementById('upd');if(!u)return;
@@ -1975,7 +1963,6 @@ function render(){
   saveGame();
   maybeAI();
 }
-/* карточки меню, обучения и итогов ужимаются, чтобы целиком помещаться на экран (крупный шрифт телефона) */
 function fitCards(){
   try{
     if(typeof innerHeight=='undefined'||!document.querySelectorAll)return;
@@ -2008,4 +1995,3 @@ initSW();
 </script>
 </body>
 </html>
-
